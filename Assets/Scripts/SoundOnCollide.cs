@@ -21,11 +21,7 @@ public class SoundOnCollide : MonoBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
-        source.Play();
-    }
-
-    public void OnCollisionEnter(Collision collision)
-    {
+        Debug.Log("Step"); 
         source.Play();
     }
 

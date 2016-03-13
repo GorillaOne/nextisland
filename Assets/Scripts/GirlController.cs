@@ -4,16 +4,20 @@ using System;
 using Photon;
 using UnityEngine.UI;
 using Assets.Marco_Polo;
+using System.Collections.Generic;
 
 public class GirlController : PunBehaviour
 {
-    public Animator animator;
+    
     public bool InputControlEnabled { get; set; }
     float forwardSpeed;
     Vector3 correctPosition;
     Quaternion correctRotation;
     Rigidbody rb;
     TapCharacterControl tapController { get; set; }
+    public Animator animator {get; set; }
+    public List<GameObject> AvailableModels;
+
     // Use this for initialization
     void Start()
     {
@@ -24,8 +28,27 @@ public class GirlController : PunBehaviour
         {
             ToggleNameDisplay(false);
             tapController.InputEnabled = true;
-        }
+            ChooseModel(); 
+        }        
+    }
 
+    private void ChooseModel()
+    {
+        var index = UnityEngine.Random.Range(0, AvailableModels.Count);
+        var modelName = AvailableModels[index].name;
+        LoadModel(modelName);
+        PhotonNetwork.RPC(photonView, "LoadModel", PhotonTargets.OthersBuffered, false, modelName);        
+    }
+
+    [PunRPC]
+    private void LoadModel(string modelName)
+    {       
+        var go = AvailableModels.Find(a => a.name == modelName); 
+        var model = GameObject.Instantiate(go);
+        model.transform.SetParent(transform, false);
+        model.transform.localPosition = Vector3.zero;
+        model.transform.localEulerAngles = Vector3.zero;
+        animator = model.GetComponent<Animator>(); 
     }
 
     private void CheckForRequiredComponents()
@@ -54,10 +77,13 @@ public class GirlController : PunBehaviour
         if (photonView.isMine)
         {
             forwardSpeed = rb.velocity.magnitude / TapCharacterControl.MaxMovementSpeed;
-            animator.SetFloat("Forward", forwardSpeed);
+            if (animator != null)
+            {
+                animator.SetFloat("Forward", forwardSpeed);
+            }
+            
         }
     }
-
     public void ToggleNameDisplay(bool on)
     {
         var canvasGameObject = transform.FindChild("NameCanvas");

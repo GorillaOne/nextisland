@@ -11,12 +11,11 @@ using UnityEngine.SceneManagement;
 
 public class GameSceneController : PunBehaviour
 {
-    public string CharacterPrefabName;
     public List<Transform> SpawnPositions;
     public Button quitButton;
-    public const float version = 0.3f;
+    public const float version = 0.31f;
     public const string gameName = "PUNTutorial";
-    public List<GameObject> GirlPrefabList = new List<GameObject>();
+    public List<GameObject> GirlPrefabList = new List<GameObject>(); 
 
     public float startingSpawnDist = 10; 
     public float maxSpawnDist = 40;
@@ -58,9 +57,13 @@ public class GameSceneController : PunBehaviour
     }
     private void InstantiateCharacter()
     {
-        myCharacter = PhotonNetwork.Instantiate(CharacterPrefabName, Vector3.zero, Quaternion.identity, 0);
+        myCharacter = PhotonNetwork.Instantiate("CharacterPrefab", Vector3.zero, Quaternion.identity, 0);
         myCharacterController = myCharacter.GetComponent<GirlController>();
         myCharacterController.ToggleNameDisplay(false);
+
+
+
+        //myCharacter.GetPhotonView().RPC("LoadModel", PhotonTargets.All, modelName); 
         var campfire = GameObject.Find("Campfire");
 
         EnableCamera(myCharacter);
@@ -96,7 +99,6 @@ public class GameSceneController : PunBehaviour
         myCharacter.transform.position = position; //SpawnPositions[num].position;
         
     }
-
     public void OnButtonClicked(Button buttonClicked)
     {
         if (buttonClicked.name == quitButton.name)
